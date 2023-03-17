@@ -1,33 +1,14 @@
 import requests
 
-def get_q_data(url, question) :
+def pickOne(url) :
     payload = """
-    {{
-        question(titleSlug: "{title}") {{
+    {
+        randomQuestion(categorySlug:\"algorithms\", filters:{}) {
             questionFrontendId
             isPaidOnly
             title
             difficulty
             titleSlug
-        }}
-    }}
-    """.format(title=question['titleSlug'])
-    headers = {
-        'Content-Type': 'application/graphql',
-        'Cookie': 'csrftoken=3AmrtZA4q7FKAXkBea1CeMXGUWBO1nIwm8Bv550dBRctPKpbHla0BsCHnkGmM60b'
-    }
-
-    response = requests.request("GET", url, headers=headers, data=payload)
-
-    return response.json()['data']['question']
-
-
-def pickOne(url) :
-    payload = """
-    {
-        randomQuestion(categorySlug:\"algorithms\", filters:{}) {
-            titleSlug
-            difficulty
         }
     }
     """
@@ -39,14 +20,11 @@ def pickOne(url) :
     question = response.json()['data']['randomQuestion']
     return question
 
-
 def main() :
     url = "https://leetcode.com/graphql"
-    question = pickOne(url)
-    q_data = get_q_data(url, question)
+    q_data = pickOne(url)
     while q_data['isPaidOnly'] :
-        question = pickOne(url)
-        q_data = get_q_data(url, question)
+        q_data = pickOne(url)
     q_data = {
         'questionId': q_data['questionFrontendId'],
         'title': q_data['title'],
